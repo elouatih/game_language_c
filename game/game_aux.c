@@ -2,20 +2,19 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "game.h"
-#include <stddef.h>
-#include <stdbool.h>
-#include <string.h>
 
-square char_to_square(char c){
-    if(c == 'l'){
-        return S_LIGHTBULB;
-    } else if(c == 'm') {
-        return S_MARK;
-    } else if(c == 'b'){
-        return S_BLANK;
-    } else {
-        return S_BLACK0;
-    }
+char square_to_char(square s){
+    if(s == S_BLANK) return ' ';
+    else if(s == S_LIGHTBULB) return '*';
+    else if(s == S_BLACK0) return '0';
+    else if(s == S_BLACK1) return '1';
+    else if(s == S_BLACK2) return '2';
+    else if(s == S_BLACK3) return '3';
+    else if(s == S_BLACK4) return '4';
+    else if(s == S_BLACKU) return 'w';
+    else if(s == S_MARK) return '-';
+    else if(s == F_LIGHTED) return '.';
+    else return ' ';
 }
 
 void game_print(cgame g){
@@ -24,69 +23,84 @@ void game_print(cgame g){
     for(int i=0; i<DEFAULT_SIZE; i++){
         printf("%d  |", i);
         for(int j=0; j<DEFAULT_SIZE; j++) {
-            int state = game_get_square(g, i, j);
-            if(state == 0){
-                printf(" ");
-            } else{
-                printf("%d", state);
-            }
+            square s = game_get_square(g, i, j);
+            printf("%c", square_to_char(s));
         }
         printf("|\n");
     };
     printf("    -------\n");
 }
 game game_default(void) {
-    /*square *squares = malloc(DEFAULT_SIZE * DEFAULT_SIZE * sizeof(square));
-    for(int i=0; i<DEFAULT_SIZE * DEFAULT_SIZE; i++){
-        squares[i] = S_BLANK;
-    }*/
     game current_game = game_new_empty();
-    game_print(current_game);
-    printf("? [help] press h for help \n");
-    printf("? [new Empty Game] press r to restart game \n");
-    printf("? [quit] press q to quit the game \n");
-    bool win_game = false;
-    while (1) {
-        char c;
-        int ret = scanf(" %c", &c);
-        if (c == 'q') {
-            win_game = false;
-            return 0;
-        } else if (c == 'h') {
-            printf("Commande sous forme <c> <i> <j> \n");
-            continue;
-        } else if (c == 'r') {
-            game_restart(current_game);
-            current_game = game_new_empty();
-            printf("Le jeu est reinitialise \n");
-            continue;
-        } else {
-            char *s = malloc(3 * sizeof(char));
-            for (int k = 0; k < 3; k++) {
-                char l;
-                int r = scanf(" %c", &l);
-                s[k] = l;
-            }
-            printf("here \n");
-            uint i = (uint)s[1] - '0';
-            printf(" i = %u \n", i);
-            uint j = (uint)s[2] - '0';
-            printf(" j = %u \n", j);
-            square current_square = char_to_square(s[0]);
-            bool true_or_false = game_check_move(current_game, i, j, current_square);
-            printf("MOVE POSSIBLE = %d \n", true_or_false ? 1: 0);
-            if (true_or_false) {
-                game_set_square(current_game, i, j, current_square);
-                //game_play_move(current_game, i, j, current_square);
-            }
-        }
-        printf("");
-        game_print(current_game);
-        printf("? [help] press h for help \n");
-        printf("? [new Empty Game] press r to restart game \n");
-        printf("? [quit] press q to quit the game \n");
+    square **tab = malloc(DEFAULT_SIZE * sizeof(square *));
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        tab[i] = malloc(DEFAULT_SIZE * sizeof(square));
     }
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        for (int j = 0; j < DEFAULT_SIZE; j++) {
+            tab[i][j] = S_BLANK;
+        }
+    }
+    tab[0][3] = S_BLACK1;
+    tab[0][5] = S_BLACK0;
+    tab[1][0] = S_BLACKU;
+    tab[2][2] = S_BLACKU;
+    tab[2][4] = S_BLACKU;
+    tab[3][0] = S_BLACKU;
+    tab[3][6] = S_BLACKU;
+    tab[4][2] = S_BLACKU;
+    tab[4][4] = S_BLACK3;
+    tab[5][6] = S_BLACKU;
+    tab[6][1] = S_BLACK3;
+    tab[6][3] = S_BLACK2;
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        for (int j = 0; j < DEFAULT_SIZE; j++) {
+            game_set_square(current_game, i, j, tab[i][j]);
+        }
+    }
+    return current_game;
 }
+
 game game_default_solution(void){
-    return NULL;
+    game current_game = game_new_empty();
+    square **tab = malloc(DEFAULT_SIZE * sizeof(square *));
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        tab[i] = malloc(DEFAULT_SIZE * sizeof(square));
+    }
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        for (int j = 0; j < DEFAULT_SIZE; j++) {
+            tab[i][j] = F_LIGHTED;
+        }
+    }
+    tab[0][3] = S_BLACK1;
+    tab[0][5] = S_BLACK0;
+    tab[1][0] = S_BLACKU;
+    tab[2][2] = S_BLACKU;
+    tab[2][4] = S_BLACKU;
+    tab[3][0] = S_BLACKU;
+    tab[3][6] = S_BLACKU;
+    tab[4][2] = S_BLACKU;
+    tab[4][4] = S_BLACK3;
+    tab[5][6] = S_BLACKU;
+    tab[6][1] = S_BLACK3;
+    tab[6][3] = S_BLACK2;
+
+    tab[0][2] = S_LIGHTBULB;
+    tab[1][4] = S_LIGHTBULB;
+    tab[2][0] = S_LIGHTBULB;
+    tab[2][6] = S_LIGHTBULB;
+    tab[3][4] = S_LIGHTBULB;
+    tab[4][3] = S_LIGHTBULB;
+    tab[4][5] = S_LIGHTBULB;
+    tab[5][1] = S_LIGHTBULB;
+    tab[6][0] = S_LIGHTBULB;
+    tab[6][2] = S_LIGHTBULB;
+    tab[6][4] = S_LIGHTBULB;
+
+    for (int i = 0; i < DEFAULT_SIZE; i++) {
+        for (int j = 0; j < DEFAULT_SIZE; j++) {
+            game_set_square(current_game, i, j, tab[i][j]);
+        }
+    }
+    return current_game;
 }

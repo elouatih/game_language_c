@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 // Important: scanf() input specifiers like "%d" (to match integer)
 // generally ignore leading spaces, except: "%c". So, you need to use " %c"
@@ -13,7 +14,7 @@
 
 int main(void)
 {
-    int r;
+    /*int r;
 
     // SCAN OF A SINGLE INTEGER
     printf("> Enter a number?\n");
@@ -59,5 +60,8 @@ int main(void)
     }
     printf("End of loop!\n");
 
-    return EXIT_SUCCESS;
+    return EXIT_SUCCESS;*/
+    char str[11];
+    scanf("%10[0-9a-zA-Z ]", str);
+    printf("length = %ld \n", strlen(str));
 }
